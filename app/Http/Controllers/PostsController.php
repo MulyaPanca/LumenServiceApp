@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PostsController extends Controller
 {
     // GET /posts?search=lumen&status=published&category_id=1&per_page=5
     public function index(Request $request)
     {
-        $posts = Post::orderBy("id", "DESC")->paginate(2)->toArray();
+        $posts = Post::Where(['user_id' => Auth::user()->id])->orderBy("id", "DESC")->paginate(2)->toArray();
         $response = [
             "total_count" => $posts["total"],
             "limit"       => $posts["per_page"],

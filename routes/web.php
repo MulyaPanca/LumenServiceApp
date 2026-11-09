@@ -32,12 +32,15 @@ $router->get('/users', 'UsersController@index');
 $router->get('/users/{userId}', 'UsersController@show');
 
 // Posts
-$router->get('posts', 'PostsController@index');
-$router->get('posts-stats', 'PostsController@stats');
-$router->get('posts/{id}', 'PostsController@show');
-$router->post('posts', 'PostsController@store');
-$router->put('posts/{id}', 'PostsController@update');
-$router->delete('posts/{id}', 'PostsController@destroy'); 
+Route::group(['middleware' => ['auth']], function($router) {
+    $router->get('posts', 'PostsController@index');
+    $router->get('posts-stats', 'PostsController@stats');
+    $router->get('posts/{id}', 'PostsController@show');
+    $router->post('posts', 'PostsController@store');
+    $router->put('posts/{id}', 'PostsController@update');
+    $router->delete('posts/{id}', 'PostsController@destroy'); 
+    
+});
 
 
 // Categories
@@ -48,8 +51,17 @@ $router->put('categories/{id}', 'CategoriesController@update');
 $router->delete('categories/{id}', 'CategoriesController@destroy');
 
 // Students
-$router->get('/students', 'StudentsController@index');
-$router->get('/students/{id}', 'StudentsController@show');
-$router->post('/students', 'StudentsController@store');
-$router->put('/students/{id}', 'StudentsController@update');
-$router->delete('/students/{id}', 'StudentsController@destroy');
+$router->group(['middleware' => 'auth'], function () use ($router) {
+    $router->get('/students', 'StudentsController@index');
+    $router->get('/students/{id}', 'StudentsController@show');
+    $router->post('/students', 'StudentsController@store');
+    $router->put('/students/{id}', 'StudentsController@update');
+    $router->delete('/students/{id}', 'StudentsController@destroy');
+});
+
+// authentication
+$router->group(['prefix' => 'auth'], function() use ($router) {
+    $router->post('/register', 'AuthController@register');
+    $router->post('/login', 'AuthController@login');
+    $router->delete('/logout', ['middleware' => 'auth', 'uses' => 'AuthController@logout']);
+});
